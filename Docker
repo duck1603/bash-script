@@ -1,0 +1,50 @@
+#!/bin/bash
+
+# Kiểm tra quyền root
+if [ "$(id -u)" != "0" ]; then
+   echo "Lỗi: Vui lòng chạy với quyền root."
+   exit 1
+fi
+
+# Nhận diện Hệ điều hành
+if [ -f /etc/os-release ]; then
+    . /etc/os-release
+    OS=$ID
+fi
+
+echo "Hệ điều hành phát hiện: $OS"
+
+case "$OS" in
+    ubuntu|debian)
+        echo "Đang cài đặt cho dòng Debian/Ubuntu..."
+        sudo apt update -y
+        sudo apt install -y ca-certificates curl gnupg lsb-release
+        sudo mkdir -p /etc/apt/keyrings
+        curl -fsSL https://download.docker.com/linux/$OS/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+        echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/$OS $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+        sudo apt update -y
+        sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+        ;;
+
+    centos|almalinux|rocky)
+        echo "Đang cài đặt cho dòng RHEL (CentOS/AlmaLinux/Rocky)..."
+        sudo yum install -y yum-utils
+        sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+        sudo yum install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+        sudo systemctl enable --now docker
+        ;;
+
+    *)
+        echo "Lỗi: Hệ điều hành $OS chưa được hỗ trợ bởi script này."
+        exit 1
+        ;;
+esac
+
+# Cấu hình chung
+sudo usermod -aG docker ${USER:-root}
+
+echo "-------------------------------------------------------"
+echo "Cài đặt thành công trên $OS!"
+docker --version
+docker compose version
+echo "-------------------------------------------------------"
