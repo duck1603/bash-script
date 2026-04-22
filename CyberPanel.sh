@@ -5,6 +5,7 @@
 # Script: Tự động cài đặt CyberPanel (OpenLiteSpeed)
 # Hỗ trợ: Ubuntu 20.04+, AlmaLinux 8/9, CentOS 7
 # ==========================================================
+set -e
 
 # 1. Kiểm tra quyền root
 if [ "$(id -u)" != "0" ]; then
