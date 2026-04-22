@@ -18,11 +18,14 @@ echo "Đang kiểm tra môi trường hệ thống cho CyberPanel..."
 echo "-------------------------------------------------------"
 
 # 2. Cập nhật hệ thống trước khi cài đặt
-echo "Đang cập nhật danh sách gói (update)..."
 if [ -f /etc/debian_version ]; then
     apt-get update -y > /dev/null
 elif [ -f /etc/redhat-release ]; then
-    yum update -y > /dev/null
+    if command -v dnf &> /dev/null; then
+        dnf update -y > /dev/null
+    else
+        yum update -y > /dev/null
+    fi
 fi
 
 # 3. Kiểm tra wget (cần thiết để tải bộ cài)
@@ -31,24 +34,29 @@ if ! command -v wget &> /dev/null; then
     if [ -f /etc/debian_version ]; then
         apt-get install wget -y
     else
-        yum install wget -y
+        if command -v dnf &> /dev/null; then
+            dnf install wget -y
+        else
+            yum install wget -y
+        fi
     fi
 fi
 
-# 4. Gọi lệnh cài đặt chính thức của CyberPanel
-# Sử dụng wget -qO- để lấy script và thực thi ngay lập tức
-echo "-------------------------------------------------------"
-echo "Bắt đầu tải và chạy trình cài đặt CyberPanel..."
-echo "-------------------------------------------------------"
-
-sh <(curl https://cyberpanel.net/install.sh || wget -O - https://cyberpanel.net/install.sh)
-
-# 5. Kiểm tra trạng thái thoát ($?)
-if [ $? -eq 0 ]; then
-    echo "-------------------------------------------------------"
-    echo "Trình cài đặt đã được khởi động thành công!"
-    echo "Vui lòng làm theo hướng dẫn trên màn hình để hoàn tất."
+# 4. Tải script
+if command -v curl &> /dev/null; then
+    curl -o install.sh https://cyberpanel.net/install.sh
+elif command -v wget &> /dev/null; then
+    wget -O install.sh https://cyberpanel.net/install.sh
 else
-    echo "Có lỗi xảy ra trong quá trình tải script cài đặt."
+    echo "Cần curl hoặc wget để tải script"
     exit 1
 fi
+
+chmod +x install.sh
+
+# 5. Chạy script
+echo "-------------------------------------------------------"
+echo "Đang chạy trình cài đặt CyberPanel..."
+echo "-------------------------------------------------------"
+
+sh install.sh
