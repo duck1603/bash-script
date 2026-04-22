@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 # Kiểm tra quyền root
 if [ "$(id -u)" != "0" ]; then
