@@ -5,4 +5,4 @@ bash <(wget -qO- https://raw.githubusercontent.com/duck1603/bash-script/refs/hea
 bash <(wget -qO- https://raw.githubusercontent.com/duck1603/bash-script/refs/heads/main/CyberPanel.sh)
 
 #Cài đặt Docker & Docker Compose:
-bash <(wget -qO- https://raw.githubusercontent.com/duck1603/bash-script/refs/heads/main/Docker)
+bash <(wget -qO- https://raw.githubusercontent.com/duck1603/bash-script/refs/heads/main/Docker.sh)
